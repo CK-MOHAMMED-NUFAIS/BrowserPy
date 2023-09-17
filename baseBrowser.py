@@ -79,7 +79,7 @@ class Url:
             elif not flag:
                 print(i,end="")
 
-# url = Url("http://example.org/index.html")
+
 if __name__ == "__main__":
     import sys
     system = sys.argv
