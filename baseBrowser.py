@@ -1,23 +1,41 @@
 import socket
+import ssl
 class Url:
     def __init__(self,url):
         #spilt http scheme and url then assert and check if scheme is http
         scheme,url   = url.split("://")
-        assert scheme == "http", f"Not http/0 standard \n {scheme} not Supported"
+        self.scheme = scheme
+        assert scheme in ["http","https"], f"Not {scheme}/0 standard \n {scheme} not Supported"
 
         #splittting path and hostname based on "/" . and check if "/" exist in it if not ,add 
         if "/" not in url:
             url += "/"
         self.host ,self.path = url.split("/",1)
-        print(self.host,self.path)
-
+        if scheme == "http":
+            self.port = 80
+        elif scheme == "https":
+            # https connects use port 443
+            self.port = 443
+        
+        #custom port support
+        if ":" in self.host:
+            self.host,port = self.host.split(":",1)
+            self.port = int(port)
+            
+        print(self.host,self.path,self.port)
 
         
     def request(self,raw = False):
         soc = socket.socket(family = socket.AF_INET,type=socket.SOCK_STREAM,proto=socket.IPPROTO_TCP,)
         print("Trying to connect to hostname:\n")
-        soc.connect((self.host,80))
+        soc.connect((self.host,self.port))
    
+    # check if the scheme is https . if it then connection will encrypted
+        if self.scheme == "https":
+            ctx = ssl.create_default_context()
+            soc = ctx.wrap_socket(soc,server_hostname=self.host)
+            print(soc)
+
         request_line = "GET /{} HTTP/1.0\r\n".format(self.path)
         hostH= "Host:{}\r\n".format(self.host)
 
