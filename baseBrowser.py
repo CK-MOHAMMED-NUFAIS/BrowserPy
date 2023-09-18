@@ -35,13 +35,14 @@ class Url:
             ctx = ssl.create_default_context()
             soc = ctx.wrap_socket(soc,server_hostname=self.host)
 
-        #simple to add headers
+        #simple to add headers using dict
         header = {
             "Host":self.host,
+            "Connection":"close",
             "User-Agent":'firefox',
         }
 
-        request_line = "GET /{} HTTP/1.0\r\n".format(self.path)
+        request_line = "GET /{} HTTP/1.1\r\n".format(self.path)
         req = f"{request_line}"
         for header , value in  header.items():
             req+="{}:{}\r\n".format(header,value)
@@ -71,6 +72,7 @@ class Url:
 
         self.body = response.read()
         soc.close()
+        # check if raw parameter is true then call simple terminal printing function
         if raw == True:
             self.show()
         return headers, self.body
