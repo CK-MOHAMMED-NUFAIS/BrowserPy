@@ -34,12 +34,18 @@ class Url:
         if self.scheme == "https":
             ctx = ssl.create_default_context()
             soc = ctx.wrap_socket(soc,server_hostname=self.host)
-            print(soc)
+
+        #simple to add headers
+        header = {
+            "Host":self.host,
+            "User-Agent":'firefox',
+        }
 
         request_line = "GET /{} HTTP/1.0\r\n".format(self.path)
-        hostH= "Host:{}\r\n".format(self.host)
-
-        req = "{}{}\r\n\r\n".format(request_line,hostH)
+        req = f"{request_line}"
+        for header , value in  header.items():
+            req+="{}:{}\r\n".format(header,value)
+        req +="\r\n\r\n"
         soc.send(req.encode("utf8"))
 #       this creates request like below
         # GET /index.html HTTP/1.0
