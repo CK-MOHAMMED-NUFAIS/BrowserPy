@@ -2,10 +2,21 @@ import socket
 import ssl
 class Url:
     def __init__(self,url):
+        url = url.lower()
+        if url.startswith("file:///"):
+            print("it is file")
+        elif url.startswith("data:text/html"):
+            # self.DataScheme(url)
+            pass
+        else:
+            self.HttpUrl(url)
+
+#this HttpUrl function check if url is valid and check for custom port and check http or https
+    def HttpUrl(self,url):
         #spilt http scheme and url then assert and check if scheme is http
         scheme,url   = url.split("://")
         self.scheme = scheme
-        assert scheme in ["http","https"], f"Not {scheme}/0 standard \n {scheme} not Supported"
+        assert scheme in ["http","https"], f"Not {scheme}/1 standard \n {scheme} not Supported"
 
         #splittting path and hostname based on "/" . and check if "/" exist in it if not ,add 
         if "/" not in url:
@@ -21,11 +32,10 @@ class Url:
         if ":" in self.host:
             self.host,port = self.host.split(":",1)
             self.port = int(port)
-            
-        print(self.host,self.path,self.port)
+        self.request()
 
         
-    def request(self,raw = False):
+    def request(self):
         soc = socket.socket(family = socket.AF_INET,type=socket.SOCK_STREAM,proto=socket.IPPROTO_TCP,)
         print("Trying to connect to hostname:\n")
         soc.connect((self.host,self.port))
@@ -73,9 +83,8 @@ class Url:
         self.body = response.read()
         soc.close()
         # check if raw parameter is true then call simple terminal printing function
-        if raw == True:
-            self.show()
-        return headers, self.body
+        self.show()
+        return 200
         
     def show(self):
         flag = False
@@ -87,13 +96,14 @@ class Url:
             elif not flag:
                 print(i,end="")
 
-
+    def DataScheme(self ,url):
+        self.body = url[len("data:text/html,"):]
+        # self.show()
 if __name__ == "__main__":
     import sys
     system = sys.argv
     if len(system) > 1:
         url = Url(system[1])
-        # url = Url()
-        headers , body = url.request(True)
+
     else:
         print("\nplease input the url carefully and try again\n")
