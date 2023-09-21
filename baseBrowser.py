@@ -1,15 +1,15 @@
 import socket
 import ssl
+import os
 class Url:
     def __init__(self,url):
-        url = url.lower()
-        if url.startswith("file:///"):
-            print("it is file")
-        elif url.startswith("data:text/html"):
-            # self.DataScheme(url)
-            pass
+        urlLower = url.lower()
+        if urlLower.startswith("file:///"):
+            self.Local_File(url)
+        elif urlLower.startswith("data:text/html,"):
+            self.DataScheme(urlLower)
         else:
-            self.HttpUrl(url)
+            self.HttpUrl(urlLower)
 
 #this HttpUrl function check if url is valid and check for custom port and check http or https
     def HttpUrl(self,url):
@@ -98,12 +98,28 @@ class Url:
 
     def DataScheme(self ,url):
         self.body = url[len("data:text/html,"):]
-        # self.show()
+        self.show()
+    def Local_File(self, url):
+        # remove file:// from string
+        path = url[len("file://"):]
+
+        # check if the file exist:
+        if os.path.isfile(path):
+            with open(path,'r') as html:
+                self.body = html.read()
+                self.show()
+        else:
+            # path = os.path.dirname(path)
+            
+            #check if file's directory exists
+            if os.path.isdir(path):
+                for i in os.listdir(path):
+                    print(i)
 if __name__ == "__main__":
     import sys
-    system = sys.argv
+    system = sys.argv[1]
     if len(system) > 1:
-        url = Url(system[1])
+        url = Url(system)
 
     else:
         print("\nplease input the url carefully and try again\n")
